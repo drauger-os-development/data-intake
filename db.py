@@ -43,7 +43,6 @@ if sys.version_info[0] == 2:
 
 def commit(db, name):
     """Commit DB to disk"""
-    os.rename(name, f"{name}.bak")
     with open(name, "w+") as file:
         json.dump(db, file, indent=2)
 

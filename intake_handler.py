@@ -68,7 +68,7 @@ def main(pipe, loop_freq, intake_dir):
                         pipe.send({"RECOVER": None})
                     elif count == 4:
                         pipe.send({"READ": None})
-                         pipe.send({"ADD": data})
+                        pipe.send({"ADD": data})
                         count = 0
                     elif count < 3:
                         pipe.send({"ADD": data})

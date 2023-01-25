@@ -27,6 +27,7 @@ import sys
 import multiprocessing as multiproc
 import json
 import time
+import os
 
 # all our libraries will each fun as their own thread
 import db
@@ -50,15 +51,23 @@ ARGC = len(sys.argv)
 with open("settings.json", "r") as file:
     SETTINGS = json.load(file)
 
+# handle path shortcuts
+for each in SETTINGS:
+    if "reports" in each:
+        if SETTINGS[each][0] == "~":
+            SETTINGS[each] = os.getenv("HOME") + SETTINGS[each][1:]
+
 # set up pipes
 db_parent, db_pipe = multiproc.Pipe()
 intake_parent, intake_pipe = multiproc.Pipe()
 request_parent, request_pipe = multiproc.Pipe()
 
 # setup threads
-db_thread = multiproc.Process(target=db.main, args=(db_parent,))
+db_thread = multiproc.Process(target=db.main, args=(db_parent, SETTINGS["response_frequency"],
+                                                    SETTINGS["db_name"]))
 intake_thread = multiproc.Process(target=ih.main, args=(intake_parent,
-                                SETTINGS["intake_frequency"]))
+                                SETTINGS["intake_frequency"],
+                                SETTINGS["accepted_reports"]))
 request_thread = multiproc.Process(target=rh.main, args=(request_parent,
                                                          SETTINGS["response_frequency"]))
 

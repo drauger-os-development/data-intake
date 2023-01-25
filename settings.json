@@ -3,5 +3,6 @@
 	"sus_reports": "~/SUSPICIOUS_REPORTS",
 	"unchecked_reports": "~/REPORTS",
 	"intake_frequency": 300,
-	"response_frequency": 0.01
+	"response_frequency": 0.01,
+        "db_name": "reports.json"
 }
