@@ -1,0 +1,6 @@
+{
+	"accepted_reports": "~/READY_REPORTS",
+	"sus_reports": "~/SUSPICIOUS_REPORTS",
+	"unchecked_reports": "~/REPORTS",
+	"intake_frequency": 0.1
+}
