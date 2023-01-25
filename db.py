@@ -70,6 +70,7 @@ def backup(name):
 def main(pipe, freq, db_name):
     """DB management thread"""
     print("DB Running!")
+    done = {"DONE": True}
     if not os.path.isfile(db_name):
         if not os.path.isfile(f"{db_name}.bak"):
             commit({}, db_name)
@@ -93,12 +94,14 @@ def main(pipe, freq, db_name):
         if "ADD" in cmd.keys():
             # add new entry to DB
             print(cmd["ADD"])
+            db[cmd["ADD"]['Installation Report Code']] = cmd["ADD"]
+            pipe.send(done)
         elif "RECV" in cmd.keys():
             # pull data from DB
-            pass
+            pipe.send({"DATA": {}})
         elif "DEL" in cmd.keys():
             # delete data from DB
-            pass
+            pipe.send(done)
         elif "CHECK" in cmd.keys():
             # check status of DB and DB thread
             score = 0
@@ -120,16 +123,16 @@ def main(pipe, freq, db_name):
                 pipe.send({"STATUS": "GOOD"})
         elif "COMMIT" in cmd.keys():
             commit(db, db_name)
-            pipe.send({"DONE": True})
+            pipe.send(done)
         elif "BACKUP" in cmd.keys():
             backup(db_name)
-            pipe.send({"DONE": True})
+            pipe.send(done)
         elif "RECOVER" in cmd.keys():
             recover(db_name)
-            pipe.send({"DONE": True})
+            pipe.send(done)
         elif "READ" in cmd.keys():
             db = read(db_name)
-            pipe.send({"DONE": True})
+            pipe.send(done)
         else:
             pipe.send({"ERROR": "Command not understood"})
         time.sleep(freq)
