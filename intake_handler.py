@@ -28,9 +28,10 @@ from __future__ import print_function
 import sys
 import os
 import json
-import db
+import time
 
-def __eprint__(*args, **kwargs):
+
+def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=sys.stderr, **kwargs)
 
@@ -38,3 +39,20 @@ def __eprint__(*args, **kwargs):
 if sys.version_info[0] == 2:
     __eprint__("Please run with Python 3 as Python 2 is End-of-Life.")
     exit(2)
+
+
+def main(pipe, loop_freq, intake_dir):
+    """Handle intake of installation reports"""
+    while True:
+        reports = os.listdir(intake_dir)
+        for each in reports:
+            try:
+                with open(intake_dir + "/" + each, "r") as file:
+                    report = json.load(file)
+            except:
+                eprint(f"Could not load report {each}. Discarding...")
+                os.remove(intake_dir + "/" + each)
+            # check for SQL injections, sanitize, then send through pipe to include into DB
+
+            os.remove(intake_dir + "/" + each)
+        time.sleep(loop_freq)
