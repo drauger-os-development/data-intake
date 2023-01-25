@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  request_handler.py
+#  main.py
 #
 #  Copyright 2023 Thomas Castleman <contact@draugeros.org>
 #
@@ -21,16 +21,15 @@
 #  MA 02110-1301, USA.
 #
 #
-"""handles requests for data from the DB. It checks for SQL injections, raw binary data, then passes it along"""
+"""Explain what this program does here!!!"""
 from __future__ import print_function
 import sys
-import db
-import dbus
-import dbus.service
-from dbus.mainloop.glib import DBusGMainLoop
+import multiprocessing
 
-# We're going to use D-Bus to communicate with external processes.
-# Should make things clean, efficient, and cohesive
+# all our libraries will each fun as their own thread
+import db
+import request_handler as rh
+import intake_handler as ih
 
 
 def __eprint__(*args, **kwargs):
@@ -42,4 +41,5 @@ if sys.version_info[0] == 2:
     __eprint__("Please run with Python 3 as Python 2 is End-of-Life.")
     exit(2)
 
-
+# get length of argv
+ARGC = len(sys.argv)
