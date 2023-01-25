@@ -26,6 +26,7 @@ from __future__ import print_function
 import sys
 import multiprocessing as multiproc
 import json
+import time
 
 # all our libraries will each fun as their own thread
 import db
@@ -47,9 +48,30 @@ ARGC = len(sys.argv)
 
 # Load settings
 with open("settings.json", "r") as file:
-	SETTINGS = json.load(file)
+    SETTINGS = json.load(file)
 
 # set up pipes
 db_parent, db_pipe = multiproc.Pipe()
 intake_parent, intake_pipe = multiproc.Pipe()
 request_parent, request_pipe = multiproc.Pipe()
+
+# setup threads
+db_thread = multiproc.Process(target=db.main, args=(db_parent,))
+intake_thread = multiproc.Process(target=ih.main, args=(intake_parent,
+                                SETTINGS["intake_frequency"]))
+request_thread = multiproc.Process(target=rh.main, args=(request_parent,))
+
+# start threads
+db_thread.start()
+intake_thread.start()
+request_thread.start()
+
+# coordinate process communication and keep things thread safe
+flip_flop = True
+while True:
+    if flip_flop:
+        flip_flop = False
+
+    else:
+        flip_flop = True
+    time.sleep(SETTINGS["response_frequency"])
