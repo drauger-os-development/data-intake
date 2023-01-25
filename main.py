@@ -59,7 +59,8 @@ request_parent, request_pipe = multiproc.Pipe()
 db_thread = multiproc.Process(target=db.main, args=(db_parent,))
 intake_thread = multiproc.Process(target=ih.main, args=(intake_parent,
                                 SETTINGS["intake_frequency"]))
-request_thread = multiproc.Process(target=rh.main, args=(request_parent,))
+request_thread = multiproc.Process(target=rh.main, args=(request_parent,
+                                                         SETTINGS["response_frequency"]))
 
 # start threads
 db_thread.start()

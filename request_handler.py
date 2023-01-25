@@ -21,7 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
-"""handles requests for data from the DB. It checks for SQL injections, raw binary data, then passes it along"""
+"""handles requests for data from the DB."""
 from __future__ import print_function
 import sys
 import db
@@ -43,3 +43,41 @@ if sys.version_info[0] == 2:
     exit(2)
 
 
+class signal_handlers(dbus.service.Object):
+    """Signal Handlers for DBus"""
+    def __init__(self, bus_obj, bus_loc, pipe, response_time):
+        """Make pipe available to whole class"""
+        super().__init__(bus_obj, bus_loc)
+        self.pipe = pipe
+        try:
+            self.resp_time = float(response_time)
+        except ValueError:
+            self.resp_time = 0.1
+
+    @dbus.service.method("org.draugeros.Request_Handler", in_signature='d', out_signature='s')
+    def retrive_report(self, report_id: float) -> str:
+        """Retrieve Installation report from DB"""
+        try:
+            pipe.send({'recv': float(report_id)})
+        except ValueError:
+            return '{"data": "ERROR: ValueError"}'
+        while True:
+            if self.pipe.poll():
+                return f"{'data': { self.pipe.recv() }}"
+            time.sleep(self.resp_time)
+
+
+def Main(pipe, response_time):
+    """Start up DBus listeners"""
+    try:
+        DBusGMainLoop(set_as_default=True)
+
+        bus = dbus.SessionBus()
+        name = dbus.service.BusName("org.draugeros.Request_Handler", bus)
+        object = signal_handlers(bus, '/org/draugeros/Request_Handler',
+                                 pipe, response_time)
+
+        mainloop = GLib.MainLoop()
+        mainloop.run()
+    except:
+        pass
