@@ -82,7 +82,7 @@ def main(pipe, freq, db_name):
     time.sleep(0.1)
     while True:
         if not pipe.poll():
-            if sleep_count > 20000:
+            if sleep_count > 5000:
                 backup(db_name)
                 sleep_count = 0
             else:
@@ -93,9 +93,9 @@ def main(pipe, freq, db_name):
         sleep_count = 0
         if "ADD" in cmd.keys():
             # add new entry to DB
-            print(cmd["ADD"])
             db[cmd["ADD"]['Installation Report Code']] = cmd["ADD"]
             pipe.send(done)
+            commit(db, db_name)
         elif "RECV" in cmd.keys():
             # pull data from DB
             pipe.send({"DATA": {}})
