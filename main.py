@@ -96,7 +96,7 @@ while True:
                 intake_pipe.send(data)
         flip_flop = None
     elif flip_flop is None:
-	flip_flop = False
+        flip_flop = False
         if intake_pipe.poll():
              db_pipe.send(intake_pipe.recv())
     else:
