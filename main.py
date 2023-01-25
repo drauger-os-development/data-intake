@@ -24,7 +24,8 @@
 """Explain what this program does here!!!"""
 from __future__ import print_function
 import sys
-import multiprocessing
+import multiprocessing as multiproc
+import json
 
 # all our libraries will each fun as their own thread
 import db
@@ -43,3 +44,12 @@ if sys.version_info[0] == 2:
 
 # get length of argv
 ARGC = len(sys.argv)
+
+# Load settings
+with open("settings.json", "r") as file:
+	SETTINGS = json.load(file)
+
+# set up pipes
+db_parent, db_pipe = multiproc.Pipe()
+intake_parent, intake_pipe = multiproc.Pipe()
+request_parent, request_pipe = multiproc.Pipe()
