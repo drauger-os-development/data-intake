@@ -69,6 +69,7 @@ def backup(name):
 
 def main(pipe, freq, db_name):
     """DB management thread"""
+    print("DB Running!")
     if not os.path.isfile(db_name):
         if not os.path.isfile(f"{db_name}.bak"):
             commit({}, db_name)
@@ -91,7 +92,7 @@ def main(pipe, freq, db_name):
         sleep_count = 0
         if "ADD" in cmd.keys():
             # add new entry to DB
-            pass
+            print(cmd["ADD"])
         elif "RECV" in cmd.keys():
             # pull data from DB
             pass

@@ -78,10 +78,29 @@ request_thread.start()
 
 # coordinate process communication and keep things thread safe
 flip_flop = True
+time.sleep(0.01)
+# make sure DB is ready to go before anything else
+while True:
+    if db_pipe.poll():
+        if db_pipe.recv() == {"STATUS": "READY"}:
+            break
+    time.sleep(0.1)
+
 while True:
     if flip_flop:
-        flip_flop = False
-
+        if db_pipe.poll():
+            data = db_pipe.recv()
+            if (("DATA" in data.keys()) and (not flip_flop)):
+                request_pipe.send(data)
+            else:
+                intake_pipe.send(data)
+        flip_flop = None
+    elif flip_flop is None:
+	flip_flop = False
+        if intake_pipe.poll():
+             db_pipe.send(intake_pipe.recv())
     else:
+        if request_pipe.poll():
+             db_pipe.send(request_pipe.recv())
         flip_flop = True
     time.sleep(SETTINGS["response_frequency"])

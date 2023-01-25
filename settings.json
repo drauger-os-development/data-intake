@@ -2,7 +2,7 @@
 	"accepted_reports": "~/READY_REPORTS",
 	"sus_reports": "~/SUSPICIOUS_REPORTS",
 	"unchecked_reports": "~/REPORTS",
-	"intake_frequency": 300,
+	"intake_frequency": 10,
 	"response_frequency": 0.01,
         "db_name": "reports.json"
 }
