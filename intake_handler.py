@@ -37,7 +37,7 @@ def eprint(*args, **kwargs):
 
 
 if sys.version_info[0] == 2:
-    __eprint__("Please run with Python 3 as Python 2 is End-of-Life.")
+    eprint("Please run with Python 3 as Python 2 is End-of-Life.")
     exit(2)
 
 
@@ -52,7 +52,26 @@ def main(pipe, loop_freq, intake_dir):
             except:
                 eprint(f"Could not load report {each}. Discarding...")
                 os.remove(intake_dir + "/" + each)
-            # check for SQL injections, sanitize, then send through pipe to include into DB
-
+            with open(intake_dir + "/" + each, "r") as file:
+                data = json.load(file)
+            pipe.send({"ADD": data})
+            count = 0
+            while True:
+                if not pipe.poll():
+                    time.sleep(2)
+                    continue
+                resp = pipe.recv()
+                if ((resp == {"DONE": True}) and (count < 3)):
+                    break
+                else:
+                    if count == 3:
+                        pipe.send({"RECOVER": None})
+                    elif count == 4:
+                        pipe.send({"READ": None})
+                         pipe.send({"ADD": data})
+                        count = 0
+                    elif count < 3:
+                        pipe.send({"ADD": data})
+                    count += 1
             os.remove(intake_dir + "/" + each)
         time.sleep(loop_freq)

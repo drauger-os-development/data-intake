@@ -21,7 +21,8 @@
 #  MA 02110-1301, USA.
 #
 #
-"""handles input and output to the database in a multi-threaded, thread-safe environment, through a simple API"""
+"""handles input and output to the database in a multi-threaded,
+thread-safe environment, through a simple API"""
 from __future__ import print_function
 import sys
 import json
@@ -42,9 +43,9 @@ if sys.version_info[0] == 2:
 
 def commit(db, name):
     """Commit DB to disk"""
-    os.rename(name, f"{name}.bak"}
-    with open(db_name, "w+") as file:
-        json.dump(db, name, indent=2)
+    os.rename(name, f"{name}.bak")
+    with open(name, "w+") as file:
+        json.dump(db, file, indent=2)
 
 
 def read(name):
@@ -56,14 +57,14 @@ def read(name):
 def recover(name):
     """Recover DB from corruption"""
     if not os.path.isfile(f"{name}.bak"):
-        raise FileNotFound(f"Cannot find recovery file: {name}.bak")
+        raise FileNotFoundError(f"Cannot find recovery file: {name}.bak")
     shutil.copy2(f"{name}.bak", name)
 
 
-def backup(name)
+def backup(name):
     """Make a backup of the database"""
     if not os.path.isfile(name):
-        raise FileNotFound(f"Cannot find recovery file: {name}")
+        raise FileNotFoundError(f"Cannot find recovery file: {name}")
     shutil.copy2(name, f"{name}.bak")
 
 
@@ -116,19 +117,20 @@ def main(pipe, freq, db_name):
             except:
                 pass
             if score == 3:
-               pipe.send({"STATUS": "GOOD"})
-       elif "COMMIT" in cmd.keys():
-           commit(db, db_name)
-           pipe.send({"DONE": True})
-       elif "BACKUP" in cmd.keys():
-           backup(db_name)
-           pipe.send({"DONE": True})
-       elif "RECOVER" in cmd.keys():
-           recover(db_name)
-           pipe.send({"DONE": True})
-       elif "READ" in cmd.keys():
-           db = read(db_name)
-           pipe.send({"DONE": True})
-       else:
-           pipe.send({"ERROR": "Command not understood"})
-       sleep.time(freq)
+                pipe.send({"STATUS": "GOOD"})
+        elif "COMMIT" in cmd.keys():
+            commit(db, db_name)
+            pipe.send({"DONE": True})
+        elif "BACKUP" in cmd.keys():
+            backup(db_name)
+            pipe.send({"DONE": True})
+        elif "RECOVER" in cmd.keys():
+            recover(db_name)
+            pipe.send({"DONE": True})
+        elif "READ" in cmd.keys():
+            db = read(db_name)
+            pipe.send({"DONE": True})
+        else:
+            pipe.send({"ERROR": "Command not understood"})
+        time.sleep(freq)
+

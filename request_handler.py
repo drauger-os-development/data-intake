@@ -67,7 +67,7 @@ class signal_handlers(dbus.service.Object):
             time.sleep(self.resp_time)
 
 
-def Main(pipe, response_time):
+def main(pipe, response_time):
     """Start up DBus listeners"""
     try:
         DBusGMainLoop(set_as_default=True)
