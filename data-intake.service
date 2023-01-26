@@ -1,0 +1,12 @@
+[Unit]
+Description=Data Intake, Processing, and Storage framework for system-installer installation reports
+After=network.target
+
+[Service]
+User=<username>
+Group=<username>
+WorkingDirectory=<path to>
+ExecStart=<path to>/main.py
+
+[Install]
+WantedBy=multi-user.target
