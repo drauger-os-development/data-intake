@@ -80,12 +80,14 @@ def main(pipe, freq, db_name):
     sleep_count = 0
     pipe.send({"STATUS": "READY"})
     time.sleep(0.1)
+    modified = False
     while True:
         if not pipe.poll():
-            if sleep_count > 1000:
+            if ((sleep_count > 1000) and modified):
                 print("Backing up!")
                 backup(db_name)
                 sleep_count = 0
+                modified = False
             else:
                 sleep_count += 1
             time.sleep(freq * 2)
@@ -98,6 +100,7 @@ def main(pipe, freq, db_name):
             print(f"ADDED REPORT: {cmd['ADD']['Installation Report Code']}")
             pipe.send(done)
             commit(db, db_name)
+            modified = True
         elif "RECV" in cmd.keys():
             # pull data from DB
             output = None
@@ -114,12 +117,14 @@ def main(pipe, freq, db_name):
             elif "all" in cmd["RECV"]:
                 output = db
             pipe.send({"DATA": output})
+            modified = True
         elif "DEL" in cmd.keys():
             # delete data from DB
             if cmd["DEL"] in db:
                 print(f"DELETED REPORT: {cmd['DEL']}")
                 del db[cmd["DEL"]]
                 pipe.send(done)
+                modified = True
             else:
                 eprint(f"REPORT REQUESTED TO BE DELETED BUT NOT FOUND: {cmd['DEL']}")
                 pipe.send({"DONE": None})
@@ -145,12 +150,15 @@ def main(pipe, freq, db_name):
         elif "COMMIT" in cmd.keys():
             commit(db, db_name)
             pipe.send(done)
+            modified = True
         elif "BACKUP" in cmd.keys():
             backup(db_name)
             pipe.send(done)
+            modified = False
         elif "RECOVER" in cmd.keys():
             recover(db_name)
             pipe.send(done)
+            modified = False
         elif "READ" in cmd.keys():
             db = read(db_name)
             pipe.send(done)
