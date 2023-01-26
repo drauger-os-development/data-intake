@@ -94,14 +94,34 @@ def main(pipe, freq, db_name):
         if "ADD" in cmd.keys():
             # add new entry to DB
             db[cmd["ADD"]['Installation Report Code']] = cmd["ADD"]
+            print(f"ADDED REPORT: {cmd['ADD']['Installation Report Code']}")
             pipe.send(done)
             commit(db, db_name)
         elif "RECV" in cmd.keys():
             # pull data from DB
-            pipe.send({"DATA": {}})
+            output = None
+            if "code" in cmd["RECV"]:
+                try:
+                    output = db[cmd["RECV"]["code"]]
+                except KeyError:
+                    eprint(f"Installation {cmd['RECV']['code']} requested but not found.")
+            elif "in_report" in cmd["RECV"]:
+                output = []
+                for each in db:
+                    if cmd["RECV"]["in_report"] in each.items():
+                        output.append(each)
+            elif "all" in cmd["RECV"]:
+                output = db
+            pipe.send({"DATA": output})
         elif "DEL" in cmd.keys():
             # delete data from DB
-            pipe.send(done)
+            if cmd["DEL"] in db:
+                print(f"DELETED REPORT: {cmd['DEL']}")
+                del db[cmd["DEL"]]
+            	pipe.send(done)
+            else:
+                eprint(f"REPORT REQUESTED TO BE DELETED BUT NOT FOUND: {cmd['DEL']}")
+                pipe.send({"DONE": None})
         elif "CHECK" in cmd.keys():
             # check status of DB and DB thread
             score = 0
