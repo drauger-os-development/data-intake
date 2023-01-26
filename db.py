@@ -31,13 +31,13 @@ import time
 import shutil
 
 
-def __eprint__(*args, **kwargs):
+def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=sys.stderr, **kwargs)
 
 
 if sys.version_info[0] == 2:
-    __eprint__("Please run with Python 3 as Python 2 is End-of-Life.")
+    eprint("Please run with Python 3 as Python 2 is End-of-Life.")
     exit(2)
 
 

@@ -4,5 +4,6 @@
 	"unchecked_reports": "~/REPORTS",
 	"intake_frequency": 10,
 	"response_frequency": 0.01,
-        "db_name": "reports.json"
+	"main_frequency": 0.1,
+	"db_name": "reports.json"
 }

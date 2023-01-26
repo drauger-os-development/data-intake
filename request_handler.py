@@ -24,7 +24,7 @@
 """handles requests for data from the DB."""
 from __future__ import print_function
 import sys
-import db
+import time
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
@@ -33,13 +33,13 @@ from dbus.mainloop.glib import DBusGMainLoop
 # Should make things clean, efficient, and cohesive
 
 
-def __eprint__(*args, **kwargs):
+def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=sys.stderr, **kwargs)
 
 
 if sys.version_info[0] == 2:
-    __eprint__("Please run with Python 3 as Python 2 is End-of-Life.")
+    eprint("Please run with Python 3 as Python 2 is End-of-Life.")
     exit(2)
 
 
@@ -55,10 +55,10 @@ class signal_handlers(dbus.service.Object):
             self.resp_time = 0.1
 
     @dbus.service.method("org.draugeros.Request_Handler", in_signature='d', out_signature='s')
-    def retrive_report(self, report_id: float) -> str:
+    def get_report_by_id(self, report_id: str) -> str:
         """Retrieve Installation report from DB"""
         try:
-            pipe.send({'recv': float(report_id)})
+            pipe.send({'recv': {"code": str(report_id)}})
         except ValueError:
             return '{"data": "ERROR: ValueError"}'
         while True:
@@ -80,4 +80,5 @@ def main(pipe, response_time):
         mainloop = GLib.MainLoop()
         mainloop.run()
     except:
+        eprint("An error has occured on the receiver thread.")
         pass

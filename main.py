@@ -90,7 +90,7 @@ while True:
     if flip_flop:
         if db_pipe.poll():
             data = db_pipe.recv()
-            if (("DATA" in data.keys()) and (not flip_flop)):
+            if "DATA" in data.keys():
                 request_pipe.send(data)
             else:
                 intake_pipe.send(data)
@@ -103,4 +103,4 @@ while True:
         if request_pipe.poll():
              db_pipe.send(request_pipe.recv())
         flip_flop = True
-    time.sleep(SETTINGS["response_frequency"])
+    time.sleep(SETTINGS["main_frequency"])
