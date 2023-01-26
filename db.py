@@ -82,7 +82,8 @@ def main(pipe, freq, db_name):
     time.sleep(0.1)
     while True:
         if not pipe.poll():
-            if sleep_count > 5000:
+            if sleep_count > 1000:
+                print("Backing up!")
                 backup(db_name)
                 sleep_count = 0
             else:
@@ -118,7 +119,7 @@ def main(pipe, freq, db_name):
             if cmd["DEL"] in db:
                 print(f"DELETED REPORT: {cmd['DEL']}")
                 del db[cmd["DEL"]]
-            	pipe.send(done)
+                pipe.send(done)
             else:
                 eprint(f"REPORT REQUESTED TO BE DELETED BUT NOT FOUND: {cmd['DEL']}")
                 pipe.send({"DONE": None})
