@@ -80,8 +80,18 @@ class signal_handlers(dbus.service.Object):
             search_term = json.loads(search_string)
         except:
             return "{'DATA': 'ERROR: Need JSON formatted string'}"
+        accepted_keys = ["system-installer Version", "OS", "CPU INFO", "PCIe / GPU INFO",
+                         "RAM / SWAP INFO", "DISK SETUP", "INSTALLATION LOG", "CUSTOM MESSAGE", "MODE"]
+        for each in search_term:
+            if each not in accepted_keys:
+                return f"{'DATA': 'ERROR: key {each} not recognized.'}"
         print(f"Requesting data on reports containing:\n{ json.dumps(search_term, indent=2) }")
-        return ""
+        self.pipe.send({"RECV": {"in_report": search_term}})
+        while True:
+             if self.pipe.poll():
+                 return json.dumps(self.pipe.recv())
+             #  print("Waiting on reply...")
+             time.sleep(self.resp_time)
 
 
 def main(pipe, response_time):
