@@ -73,6 +73,16 @@ class signal_handlers(dbus.service.Object):
             #  print("Waiting on reply...")
             time.sleep(self.resp_time)
 
+    @dbus.service.method("org.draugeros.Request_Handler", in_signature='s', out_signature='s')
+    def get_report_by_contents(self, search_string: str) -> str:
+        """Retrive installation reports from DB that match certain data"""
+        try:
+            search_term = json.loads(search_string)
+        except:
+            return "{'DATA': 'ERROR: Need JSON formatted string'}"
+        print(f"Requesting data on reports containing:\n{ json.dumps(search_term, indent=2) }")
+        return ""
+
 
 def main(pipe, response_time):
     """Start up DBus listeners"""
