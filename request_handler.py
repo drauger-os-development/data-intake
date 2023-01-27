@@ -25,9 +25,14 @@
 from __future__ import print_function
 import sys
 import time
+import json
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
+from gi.repository import GLib
 
 # We're going to use D-Bus to communicate with external processes.
 # Should make things clean, efficient, and cohesive
@@ -54,31 +59,33 @@ class signal_handlers(dbus.service.Object):
         except ValueError:
             self.resp_time = 0.1
 
-    @dbus.service.method("org.draugeros.Request_Handler", in_signature='d', out_signature='s')
+    @dbus.service.method("org.draugeros.Request_Handler", in_signature='s', out_signature='s')
     def get_report_by_id(self, report_id: str) -> str:
         """Retrieve Installation report from DB"""
+        print(f"Requesting data on report: {report_id}")
         try:
-            pipe.send({'recv': {"code": str(report_id)}})
+            self.pipe.send({'RECV': {"code": str(report_id)}})
         except ValueError:
-            return '{"data": "ERROR: ValueError"}'
+            return '{"DATA": "ERROR: ValueError"}'
         while True:
             if self.pipe.poll():
-                return f"{'data': { self.pipe.recv() }}"
+                return json.dumps(self.pipe.recv())
+            #  print("Waiting on reply...")
             time.sleep(self.resp_time)
 
 
 def main(pipe, response_time):
     """Start up DBus listeners"""
-    try:
-        DBusGMainLoop(set_as_default=True)
+    #try:
+    DBusGMainLoop(set_as_default=True)
 
-        bus = dbus.SessionBus()
-        name = dbus.service.BusName("org.draugeros.Request_Handler", bus)
-        object = signal_handlers(bus, '/org/draugeros/Request_Handler',
+    bus = dbus.SessionBus()
+    name = dbus.service.BusName("org.draugeros.Request_Handler", bus)
+    object = signal_handlers(bus, '/org/draugeros/Request_Handler',
                                  pipe, response_time)
 
-        mainloop = GLib.MainLoop()
-        mainloop.run()
-    except:
-        eprint("An error has occured on the receiver thread.")
-        pass
+    mainloop = GLib.MainLoop()
+    mainloop.run()
+    #except:
+     #   eprint("An error has occured on the receiver thread.")
+      #  pass
