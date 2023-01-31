@@ -33,6 +33,7 @@ import os
 import db
 import request_handler as rh
 import intake_handler as ih
+import filter
 
 
 def __eprint__(*args, **kwargs):
@@ -53,9 +54,16 @@ with open("settings.json", "r") as file:
 
 # handle path shortcuts
 for each in SETTINGS:
-    if "reports" in each:
+    if (("reports" in each) or ("file" in each) or ("dir" in each)):
         if SETTINGS[each][0] == "~":
-            SETTINGS[each] = os.getenv("HOME") + SETTINGS[each][1:]
+            if len(SETTINGS[each]) > 1:
+                if SETTINGS[each][1] == "/":
+                    SETTINGS[each] = os.getenv("HOME") + SETTINGS[each][1:]
+                else:
+                    SETTINGS[each] = os.getenv("HOME") + "/" + SETTINGS[each][1:]
+            else:
+                SETTINGS[each] = os.getenv("HOME")
+
 
 # set up pipes
 db_parent, db_pipe = multiproc.Pipe()
@@ -70,11 +78,16 @@ intake_thread = multiproc.Process(target=ih.main, args=(intake_parent,
                                 SETTINGS["accepted_reports"]))
 request_thread = multiproc.Process(target=rh.main, args=(request_parent,
                                                          SETTINGS["response_frequency"]))
-
+filter_thread = multiproc.Process(targer=filter.main, args=(SETTINGS["uncheck_reports"],
+                                                            SETTINGS["accepted_reports"],
+                                                            SETTINGS["sus_reports"],
+                                                            SETTINGS["filter_frequency"],
+                                                            SETTINGS["secrets_file"]))
 # start threads
 db_thread.start()
 intake_thread.start()
 request_thread.start()
+filter_thread.start()
 
 # coordinate process communication and keep things thread safe
 flip_flop = True
