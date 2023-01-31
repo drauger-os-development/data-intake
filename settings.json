@@ -5,5 +5,7 @@
 	"intake_frequency": 10,
 	"response_frequency": 0.01,
 	"main_frequency": 0.1,
-	"db_name": "reports.json"
+        "filter_frequency": 3600,
+	"db_name": "reports.json",
+        "secrets_file": "~/.data-intake.secrets"
 }
