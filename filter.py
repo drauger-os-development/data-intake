@@ -28,8 +28,8 @@ import gnupg
 import json
 import time
 import os
-import subprocess as subproc
 import shutil
+import pyclamd as clamav
 
 
 def eprint(*args, **kwargs):
@@ -52,6 +52,7 @@ def setup_gpg_home(secrets_file):
 def main(inbound: str, checked: str, sus: str, freq: float, secrets_file: str):
     """Filter inbound reports to ensure system security and report validity"""
     gpg = setup_gpg_home(secrets_file)
+    av = clamav.ClamdAgnostic()
     while True:
         # STEP 1: Check for work
         file_list = os.listdir(inbound)
@@ -75,20 +76,28 @@ def main(inbound: str, checked: str, sus: str, freq: float, secrets_file: str):
         # scan EVERYTHING for viruses. If it throws something, immedietly delete it
         second_step_file_list = []
         for each in first_step_file_list:
-            subproc.check_call(["clamscan", "--remove=yes", inbound + "/" + each])
-            if os.path.exists(inbound + "/" + each):
+            path = inbound + "/" + each
+            if not os.path.isabs(path):
+                path = os.path.abspath(path)
+            results = av.scan_file(path)
+            if results is None:
                 second_step_file_list.append(each)
             else:
                 eprint("WARNING: VIRUS DETECTED!")
+                os.remove(path)
                 eprint(f"FILE {each} DELETED FOR SAFETY REASONS.")
 
         checked_move = []
         for each in move:
-            subproc.check_call(["clamscan", "--remove=yes", inbound + "/" + each])
-            if os.path.exists(inbound + "/" + each):
+            path = inbound + "/" + each
+            if not os.path.isabs(path):
+                path = os.path.abspath(path)
+            results = av.scan_file(path)
+            if results is None:
                 checked_move.append(each)
             else:
                 eprint("WARNING: VIRUS DETECTED!")
+                os.remove(path)
                 eprint(f"FILE {each} DELETED FOR SAFETY REASONS.")
 
         # STEP 4: check size

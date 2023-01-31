@@ -1,4 +1,4 @@
 python3
 python3-dbus
 python3-gnupg
-clamav
+python3-pyclamd
