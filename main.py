@@ -78,7 +78,7 @@ intake_thread = multiproc.Process(target=ih.main, args=(intake_parent,
                                 SETTINGS["accepted_reports"]))
 request_thread = multiproc.Process(target=rh.main, args=(request_parent,
                                                          SETTINGS["response_frequency"]))
-filter_thread = multiproc.Process(targer=filter.main, args=(SETTINGS["uncheck_reports"],
+filter_thread = multiproc.Process(target=filter.main, args=(SETTINGS["unchecked_reports"],
                                                             SETTINGS["accepted_reports"],
                                                             SETTINGS["sus_reports"],
                                                             SETTINGS["filter_frequency"],

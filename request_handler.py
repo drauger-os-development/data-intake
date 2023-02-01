@@ -30,8 +30,6 @@ import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 import gi
-gi.require_version('Gtk', '3.0')
-gi.require_version('Gdk', '3.0')
 from gi.repository import GLib
 
 # We're going to use D-Bus to communicate with external processes.
