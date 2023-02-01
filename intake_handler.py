@@ -53,9 +53,7 @@ def main(pipe, loop_freq, intake_dir):
                 eprint(f"Could not load report {each}. Discarding...")
                 os.remove(intake_dir + "/" + each)
                 continue
-            with open(intake_dir + "/" + each, "r") as file:
-                data = json.load(file)
-            pipe.send({"ADD": data})
+            pipe.send({"ADD": report})
             count = 0
             while True:
                 if not pipe.poll():
